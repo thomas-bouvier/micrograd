@@ -11,9 +11,21 @@ spack env create -d .
 spack env activate .
 ```
 
+Make sure you have `gcc` and `gfortran` on your machine and run:
+
+```
+spack compiler find
+```
+
 Install required Python packages:
 
 ```
 spack add python@3.11 py-numpy py-matplotlib py-jupyter
 spack install
+```
+
+To activate your environment and start developing:
+
+```
+jupyter notebook --ip 0.0.0.0 --port 8888 --no-browser
 ```
