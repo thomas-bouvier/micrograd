@@ -2,14 +2,20 @@
 
 {
   # https://github.com/cachix/devenv/issues/1264#issuecomment-2368362686
-  packages = [
-    pkgs.stdenv.cc.cc.lib # required by jupyter
-    pkgs.gcc-unwrapped # fix: libstdc++.so.6: cannot open shared object file
-    pkgs.libz # fix: for numpy/pandas import
+  packages = with pkgs; [
+    graphviz
+    gcc-unwrapped # fix: libstdc++.so.6: cannot open shared object file
+    libz # fix: for numpy/pandas import
   ];
 
-  env.LD_LIBRARY_PATH = "${pkgs.gcc-unwrapped.lib}/lib64:${pkgs.libz}/lib";
- 
+  env.LD_LIBRARY_PATH = lib.mkIf pkgs.stdenv.isLinux (
+    lib.makeLibraryPath (with pkgs; [
+      zlib
+      gcc-unwrapped.lib
+      stdenv.cc.cc.lib # required by jupyter
+    ])
+  );
+
   # https://devenv.sh/languages/
   languages.python = {
     enable = true;
@@ -17,20 +23,18 @@
 
     uv = {
       enable = true;
-      sync.enable = true;
-      sync.arguments = ["--frozen"];
+      sync = {
+        enable = true;
+        arguments = ["--frozen"];
+      };
     };
   };
-
-  cachix.enable = false;
 
   env.UV_PYTHON = config.languages.python.package;
   env.VENV_PATH = "${config.env.DEVENV_STATE}/venv";
 
   enterShell = ''
     python_version="${config.languages.python.package.version}"
-    echo "$python_version" > .python-version
-
     echo "Python version: $python_version"
     echo "UV version: $(uv version)"
     echo "Virtual environment: $VENV_PATH"
