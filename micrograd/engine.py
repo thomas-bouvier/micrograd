@@ -1,3 +1,5 @@
+import math
+
 class Value:
 
     def __init__(self, data, _children=(), _op="", label=""):
@@ -33,6 +35,10 @@ class Value:
         return self + (-other)
 
 
+    def __rsub__(self, other):
+        return other + (-self)
+
+
     def __mul__(self, other):
         other = other if isinstance(other, Value) else Value(other)
         out = Value(self.data * other.data, (self, other), "*")
@@ -47,6 +53,10 @@ class Value:
 
     def __rmul__(self, other):
         return self * other
+
+
+    def __neg__(self):
+        return self * -1
 
 
     def __truediv__(self, other):
@@ -71,6 +81,16 @@ class Value:
 
         def _backward():
             self.grad += (1 - t**2) * out.grad
+
+        out._backward = _backward
+        return out
+
+
+    def relu(self):
+        out = Value(self.data if self.data > 0 else 0, (self, ), "relu")
+
+        def _backward():
+            self.grad += out.grad if out.data > 0 else 0
 
         out._backward = _backward
         return out
