@@ -22,17 +22,17 @@ class Neuron(Module):
         self.w = [Value(random.uniform(-1, 1)) for _ in range(nin)]
         self.b = Value(0)
         self.nonlin = nonlin
-        self.activation = activation
+        self.act_fn = activation
     
 
     def __call__(self, x):
-        activation = sum((wi * xi for wi, xi in zip(self.w, x)), self.b)
-        out = activation
+        act = sum((wi * xi for wi, xi in zip(self.w, x)), self.b)
+        out = act
         if self.nonlin:
-            if activation == "relu":
-                out = activation.relu()
-            elif activation == "tanh":
-                out = activation.tanh()
+            if self.act_fn == "relu":
+                out = act.relu()
+            elif self.act_fn == "tanh":
+                out = act.tanh()
         return out
     
 
@@ -41,7 +41,7 @@ class Neuron(Module):
 
 
     def __repr__(self):
-        return f"Neuron({len(self.w)}, {self.activation})"
+        return f"Neuron({len(self.w)}, {self.act_fn})"
 
 
 class Layer(Module):
